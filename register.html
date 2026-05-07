@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Your Moment — TimeStampU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="neon-border"></div>
+
+<div class="sky-bg">
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="cloud c4"></div>
+</div>
+
+<div class="lang-bar">
+  <div id="google_translate_element"></div>
+</div>
+
+<div class="form-page">
+  <div class="form-card">
+
+    <!-- Logo -->
+    <div style="text-align:center; margin-bottom:6px;">
+      <a href="index.html" style="font-family:'Righteous',cursive; font-size:1.6rem;
+         background:linear-gradient(135deg,#f0c040,#ffe680,#ff8c00);
+         -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+         background-clip:text; text-decoration:none;">TimeStampU</a>
+    </div>
+
+    <h2>Claim Your Moment</h2>
+    <p class="form-sub" id="selectionSummary">Loading your selection…</p>
+
+    <form id="registerForm" novalidate>
+
+      <!-- Account details -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="Choose a unique username" required autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span style="color:rgba(255,255,255,.35); font-weight:400;">(private — used for certificate only)</span></label>
+        <input id="email" type="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="At least 8 characters" required autocomplete="new-password">
+      </div>
+
+      <div class="form-group">
+        <label for="displayName">Name on Certificate <span style="color:rgba(255,255,255,.35); font-weight:400;">(or recipient's name)</span></label>
+        <input id="displayName" type="text" placeholder="Full name to appear on your certificate" required>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- Reason -->
+      <div class="form-group">
+        <label for="reason">Why does this date/time mean something to you?
+          <span style="color:rgba(255,255,255,.35); font-weight:400;">(150 words max)</span>
+        </label>
+        <textarea id="reason" rows="5"
+          placeholder="Tell the world why you chose this moment. Was it a birthday, an anniversary, a milestone, a tribute? This is your story — make it count."
+          maxlength="1000" required></textarea>
+        <div class="word-count"><span id="wordCount">0</span> / 150 words</div>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- Avatar & photos -->
+      <div class="form-group">
+        <label>Avatar / Profile Photo <span style="color:rgba(255,255,255,.35); font-weight:400;">(optional)</span></label>
+        <label class="avatar-upload-area" for="avatarInput">
+          <div class="upload-icon">🖼️</div>
+          <p>Click or drag to upload an avatar photo</p>
+          <p style="font-size:.68rem; margin-top:4px;">JPG, PNG, GIF — max 5 MB</p>
+          <input id="avatarInput" type="file" accept="image/*">
+        </label>
+        <div class="avatar-preview" id="avatarPreview"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Photos <span style="color:rgba(255,255,255,.35); font-weight:400;">(up to 3 — shown in your timeline bubble)</span></label>
+        <label class="avatar-upload-area" for="photosInput">
+          <div class="upload-icon">📷</div>
+          <p>Click or drag to upload up to 3 photos</p>
+          <p style="font-size:.68rem; margin-top:4px;">JPG, PNG — max 5 MB each</p>
+          <input id="photosInput" type="file" accept="image/*" multiple>
+        </label>
+        <div class="avatar-preview" id="photosPreview"></div>
+      </div>
+
+      <hr class="form-divider">
+
+      <!-- Terms -->
+      <div class="form-group" style="display:flex; gap:10px; align-items:flex-start;">
+        <input id="termsCheck" type="checkbox" style="width:auto; margin-top:3px; flex-shrink:0;" required>
+        <label for="termsCheck" style="text-transform:none; font-size:.8rem; font-weight:400; color:rgba(255,255,255,.7);">
+          I understand that TimeStampU is a novelty digital platform and my purchase is
+          commemorative only. I agree to the
+          <a href="#" style="color:var(--sky-bot);">Terms of Service</a> and
+          <a href="#" style="color:var(--sky-bot);">Privacy Policy</a>.
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary">Continue to Payment →</button>
+      <a href="index.html" class="btn-secondary" style="display:block; text-align:center; padding:12px;">← Back to Timeline</a>
+
+    </form>
+
+    <p class="disclaimer" style="margin-top:18px;">
+      🔒 Your email address will never appear publicly on the timeline. It is used only to
+      deliver your digital certificate and renewal reminders.
+    </p>
+
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script>
+/* ── Load selection from session ─────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const raw = sessionStorage.getItem('tsu_selection');
+  const sel = raw ? JSON.parse(raw) : null;
+  const sumEl = document.getElementById('selectionSummary');
+
+  if (sel) {
+    const hourStr = sel.hour === 'all'
+      ? 'Full Day (all 24 hours)'
+      : `Hour ${sel.hour}:00 – ${sel.hour + 1}:00`;
+    const eventNote = sel.event ? ` · ${sel.event}` : '';
+    sumEl.textContent = `📅 ${sel.yearLabel}${eventNote} · ${hourStr} · $${sel.price} + $${sel.maintenance}/yr`;
+  } else {
+    sumEl.textContent = 'No date selected — please return to the timeline.';
+  }
+
+  /* Word counter */
+  const textarea = document.getElementById('reason');
+  const counter  = document.getElementById('wordCount');
+  textarea.addEventListener('input', () => {
+    const words = textarea.value.trim() === '' ? 0
+      : textarea.value.trim().split(/\s+/).length;
+    counter.textContent = words;
+    counter.style.color = words > 150 ? '#ff4466' : 'rgba(255,255,255,.4)';
+  });
+
+  /* Avatar preview */
+  document.getElementById('avatarInput').addEventListener('change', function() {
+    previewFiles(this.files, 'avatarPreview', 1);
+  });
+
+  /* Photos preview */
+  document.getElementById('photosInput').addEventListener('change', function() {
+    previewFiles(this.files, 'photosPreview', 3);
+  });
+
+  /* Form submit */
+  document.getElementById('registerForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    /* Basic validation */
+    const words = document.getElementById('reason').value.trim().split(/\s+/).length;
+    if (words > 150) {
+      alert('Please keep your reason to 150 words or fewer.');
+      return;
+    }
+    if (!document.getElementById('termsCheck').checked) {
+      alert('Please accept the Terms of Service to continue.');
+      return;
+    }
+
+    /* Save registration data to sessionStorage */
+    const regData = {
+      username:    document.getElementById('username').value.trim(),
+      email:       document.getElementById('email').value.trim(),
+      displayName: document.getElementById('displayName').value.trim(),
+      reason:      document.getElementById('reason').value.trim(),
+    };
+    sessionStorage.setItem('tsu_regdata', JSON.stringify(regData));
+
+    /* Move to payment */
+    window.location.href = 'payment.html';
+  });
+});
+
+function previewFiles(files, previewId, maxFiles) {
+  const container = document.getElementById(previewId);
+  container.innerHTML = '';
+  const limit = Math.min(files.length, maxFiles);
+  for (let i = 0; i < limit; i++) {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      container.appendChild(img);
+    };
+    reader.readAsDataURL(files[i]);
+  }
+}
+</script>
+</body>
+</html>

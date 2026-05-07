@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment — TimeStampU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .payment-icon { font-size: 2rem; display: block; margin-bottom: 4px; }
+    .card-row { display: flex; gap: 10px; }
+    .card-row .form-group { flex: 1; }
+    .secure-badges {
+      display: flex; gap: 12px; align-items: center;
+      flex-wrap: wrap; margin-top: 10px;
+    }
+    .secure-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: .7rem; color: rgba(255,255,255,.5);
+    }
+    .pay-method span { display: block; }
+    /* SVG payment icons via inline text labels — real implementation uses provider SDKs */
+    .stripe-notice {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .72rem; color: rgba(255,255,255,.4);
+      margin-top: 14px;
+    }
+    .success-screen { display: none; text-align: center; padding: 10px 0; }
+    .success-screen.show { display: block; }
+    .success-icon { font-size: 4rem; margin-bottom: 16px; }
+    .confetti-text {
+      font-family: 'Righteous', cursive;
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="neon-border"></div>
+
+<div class="sky-bg">
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+</div>
+
+<div class="lang-bar"><div id="google_translate_element"></div></div>
+
+<div class="form-page">
+  <div class="form-card">
+
+    <!-- Logo -->
+    <div style="text-align:center; margin-bottom:6px;">
+      <a href="index.html" style="font-family:'Righteous',cursive; font-size:1.6rem;
+         background:linear-gradient(135deg,#f0c040,#ffe680,#ff8c00);
+         -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+         background-clip:text; text-decoration:none;">TimeStampU</a>
+    </div>
+
+    <!-- Payment form -->
+    <div id="paymentForm">
+      <h2>Secure Payment</h2>
+      <p class="form-sub" id="paymentSub">Complete your timestamp purchase</p>
+
+      <!-- Order summary -->
+      <div class="order-summary" id="orderSummary">
+        <div class="order-row"><span>Timestamp Purchase</span><span id="oPrice">—</span></div>
+        <div class="order-row"><span>Annual Renewal (Year 1)</span><span>$12.99</span></div>
+        <div class="order-row total"><span>Total Due Today</span><span id="oTotal">—</span></div>
+        <div class="order-row" style="font-size:.7rem; color:rgba(255,255,255,.4); margin-top:4px;">
+          <span>Renewal billed annually on your purchase date · cancel anytime</span>
+        </div>
+      </div>
+
+      <!-- Payment method selector -->
+      <div class="form-group">
+        <label>Choose Payment Method</label>
+        <div class="payment-methods" id="payMethods">
+
+          <div class="pay-method" data-method="card" onclick="selectMethod(this)">
+            <span class="payment-icon">💳</span>
+            <span>Credit / Debit Card</span>
+          </div>
+
+          <div class="pay-method" data-method="paypal" onclick="selectMethod(this)">
+            <span class="payment-icon">🅿️</span>
+            <span>PayPal</span>
+          </div>
+
+          <div class="pay-method" data-method="apple" onclick="selectMethod(this)">
+            <span class="payment-icon"> </span>
+            <span>Apple Pay</span>
+          </div>
+
+          <div class="pay-method" data-method="cashapp" onclick="selectMethod(this)">
+            <span class="payment-icon">💵</span>
+            <span>Cash App</span>
+          </div>
+
+          <div class="pay-method" data-method="venmo" onclick="selectMethod(this)">
+            <span class="payment-icon">🔵</span>
+            <span>Venmo</span>
+          </div>
+
+          <div class="pay-method" data-method="googlepay" onclick="selectMethod(this)">
+            <span class="payment-icon">🔷</span>
+            <span>Google Pay</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Card fields (shown when card method selected) -->
+      <div id="cardFields" style="display:none;">
+        <div class="form-group">
+          <label>Cardholder Name</label>
+          <input id="cardName" type="text" placeholder="Name as it appears on card" autocomplete="cc-name">
+        </div>
+        <div class="form-group">
+          <label>Card Number</label>
+          <input id="cardNumber" type="text" placeholder="•••• •••• •••• ••••"
+            maxlength="19" autocomplete="cc-number" inputmode="numeric">
+          <div style="display:flex; gap:6px; margin-top:6px; font-size:.7rem; color:rgba(255,255,255,.35);">
+            <span>VISA</span><span>MC</span><span>AMEX</span><span>DISCOVER</span>
+          </div>
+        </div>
+        <div class="card-row">
+          <div class="form-group">
+            <label>Expiry</label>
+            <input id="cardExpiry" type="text" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp">
+          </div>
+          <div class="form-group">
+            <label>CVV</label>
+            <input id="cardCvv" type="text" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <!-- Redirect notice for wallet methods -->
+      <div id="walletNotice" style="display:none;">
+        <p style="font-size:.82rem; color:rgba(255,255,255,.7); text-align:center; padding:14px;
+           background:rgba(255,255,255,.06); border-radius:10px; margin-bottom:12px;">
+          You will be redirected to complete payment with your selected provider.<br>
+          Your timestamp will go live immediately after payment is confirmed.
+        </p>
+      </div>
+
+      <div class="form-group" style="margin-top:6px;">
+        <label for="billingEmail">Billing Email</label>
+        <input id="billingEmail" type="email" placeholder="Receipt & certificate sent here" autocomplete="email">
+      </div>
+
+      <div class="form-group" style="display:flex; gap:10px; align-items:flex-start;">
+        <input id="disclaimerCheck" type="checkbox" style="width:auto; margin-top:3px; flex-shrink:0;">
+        <label for="disclaimerCheck" style="text-transform:none; font-size:.78rem; font-weight:400; color:rgba(255,255,255,.6);">
+          I acknowledge that TimeStampU is a <strong>novelty digital platform</strong>.
+          This purchase is commemorative only and does not convey any legal rights.
+          Annual renewal of <strong>$12.99</strong> is required to keep my timestamp active,
+          billed each year on this date. I may cancel at any time.
+        </label>
+      </div>
+
+      <button class="btn-primary" id="payBtn" onclick="processPayment()">
+        🔒 Complete Purchase
+      </button>
+      <a href="register.html" class="btn-secondary" style="display:block; text-align:center; padding:12px; margin-top:10px;">
+        ← Back to Registration
+      </a>
+
+      <div class="stripe-notice">
+        <span>🔒</span>
+        <span>Payments processed securely by Stripe · 256-bit SSL · PCI DSS Compliant</span>
+      </div>
+      <div class="secure-badges">
+        <span class="secure-badge">✅ SSL Encrypted</span>
+        <span class="secure-badge">✅ Never stores card data</span>
+        <span class="secure-badge">✅ Instant confirmation</span>
+        <span class="secure-badge">✅ Email receipt</span>
+      </div>
+    </div>
+    <!-- /paymentForm -->
+
+    <!-- ── SUCCESS SCREEN ──────────────────────────────── -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <div class="confetti-text">You're in History!</div>
+      <p style="font-size:.9rem; line-height:1.8; color:rgba(255,255,255,.85); margin-bottom:20px;">
+        Your moment has been stamped on the TimeStampU timeline.<br>
+        Check your email — your <strong>digital certificate</strong> is on its way.
+      </p>
+
+      <div class="order-summary" style="text-align:left; margin-bottom:20px;">
+        <div class="order-row"><span>Timestamp</span><span id="confDate">—</span></div>
+        <div class="order-row"><span>Owner</span><span id="confOwner">—</span></div>
+        <div class="order-row"><span>Confirmation #</span><span id="confNum">—</span></div>
+      </div>
+
+      <a id="viewCertLink" href="certificate.html" class="cta-btn" style="display:block; text-align:center; margin-bottom:12px;">
+        🏅 View &amp; Print Your Certificate
+      </a>
+      <a href="index.html" class="btn-secondary" style="display:block; text-align:center; padding:12px;">
+        ← Return to Timeline
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script>
+let selectedMethod = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const selRaw  = sessionStorage.getItem('tsu_selection');
+  const regRaw  = sessionStorage.getItem('tsu_regdata');
+  const sel     = selRaw  ? JSON.parse(selRaw)  : null;
+  const reg     = regRaw  ? JSON.parse(regRaw)  : null;
+
+  if (sel) {
+    const total = sel.price + 12.99;
+    document.getElementById('oPrice').textContent = `$${sel.price.toFixed(2)}`;
+    document.getElementById('oTotal').textContent = `$${total.toFixed(2)}`;
+    const hourStr = sel.hour === 'all' ? 'Full Day'
+      : `${sel.hour}:00 – ${sel.hour + 1}:00`;
+    document.getElementById('paymentSub').textContent =
+      `${sel.yearLabel} · ${hourStr}`;
+  }
+
+  if (reg && reg.email) {
+    document.getElementById('billingEmail').value = reg.email;
+  }
+
+  /* Card number formatting */
+  document.getElementById('cardNumber').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').substring(0, 16);
+    this.value = v.replace(/(.{4})/g, '$1 ').trim();
+  });
+
+  /* Expiry formatting */
+  document.getElementById('cardExpiry').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2);
+    this.value = v;
+  });
+});
+
+function selectMethod(el) {
+  document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMethod = el.dataset.method;
+
+  const isCard = selectedMethod === 'card';
+  document.getElementById('cardFields').style.display  = isCard ? 'block' : 'none';
+  document.getElementById('walletNotice').style.display = isCard ? 'none' : 'block';
+}
+
+function processPayment() {
+  if (!selectedMethod) {
+    alert('Please select a payment method.');
+    return;
+  }
+  if (!document.getElementById('disclaimerCheck').checked) {
+    alert('Please acknowledge the novelty disclaimer to continue.');
+    return;
+  }
+
+  const email = document.getElementById('billingEmail').value.trim();
+  if (!email) {
+    alert('Please enter your billing email address.');
+    return;
+  }
+
+  /* In production this calls your Stripe/PayPal backend.
+     Here we simulate a successful payment. */
+  const payBtn = document.getElementById('payBtn');
+  payBtn.textContent = '⏳ Processing…';
+  payBtn.disabled = true;
+
+  setTimeout(() => {
+    finalizeSuccess();
+  }, 2000);
+}
+
+function finalizeSuccess() {
+  const selRaw = sessionStorage.getItem('tsu_selection');
+  const regRaw = sessionStorage.getItem('tsu_regdata');
+  const sel = selRaw ? JSON.parse(selRaw) : {};
+  const reg = regRaw ? JSON.parse(regRaw) : {};
+
+  /* Save to localStorage so timeline can show it */
+  const purchases = JSON.parse(localStorage.getItem('tsu_purchases') || '{}');
+  const key = `${sel.year}|${sel.hour === 'all' ? 0 : sel.hour}`;
+  purchases[key] = {
+    owner:   reg.displayName || reg.username || 'Anonymous',
+    message: reg.reason || '',
+    avatar:  null,
+    photos:  [],
+    timestamp: new Date().toISOString(),
+  };
+  localStorage.setItem('tsu_purchases', JSON.stringify(purchases));
+
+  /* Confirmation number */
+  const confNum = 'TSU-' + Math.random().toString(36).substring(2,8).toUpperCase();
+
+  /* Show success screen */
+  document.getElementById('paymentForm').style.display = 'none';
+  const ss = document.getElementById('successScreen');
+  ss.classList.add('show');
+
+  const hourStr = sel.hour === 'all' ? 'Full Day'
+    : `${sel.hour}:00 – ${sel.hour + 1}:00`;
+  document.getElementById('confDate').textContent  = `${sel.yearLabel} · ${hourStr}`;
+  document.getElementById('confOwner').textContent = reg.displayName || reg.username || '—';
+  document.getElementById('confNum').textContent   = confNum;
+
+  /* Pass data to certificate page */
+  sessionStorage.setItem('tsu_cert', JSON.stringify({
+    name:    reg.displayName || reg.username,
+    reason:  reg.reason,
+    yearLabel: sel.yearLabel,
+    hourStr,
+    confNum,
+    purchaseDate: new Date().toLocaleDateString(undefined, {
+      year:'numeric', month:'long', day:'numeric'
+    }),
+  }));
+}
+</script>
+</body>
+</html>

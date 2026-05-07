@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Certificate of Time — TimeStampU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Certificate page bg */
+    body { background: #1a0e05; }
+    .cert-page-header {
+      text-align: center;
+      padding: 24px 20px 8px;
+      position: relative;
+      z-index: 10;
+    }
+    .cert-page-header a {
+      font-family: 'Righteous', cursive;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg,#f0c040,#ffe680,#ff8c00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .cert-instructions {
+      text-align: center;
+      font-size: .82rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 20px;
+    }
+    .cert-instructions strong { color: rgba(255,255,255,.75); }
+
+    /* ── Certificate document ──────────────────────────── */
+    .certificate {
+      width: 780px;
+      max-width: calc(100vw - 32px);
+      margin: 0 auto 40px;
+      background: #fffdf5;
+      color: #2a1a00;
+      position: relative;
+      font-family: 'IM Fell English', Georgia, serif;
+      box-shadow: 0 20px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(200,168,75,.3);
+      border-radius: 3px;
+    }
+
+    /* Layered borders */
+    .cert-border-outer {
+      position: absolute;
+      inset: 8px;
+      border: 3px double #8b6914;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .cert-border-inner {
+      position: absolute;
+      inset: 16px;
+      border: 1px solid #c8a84b;
+      border-radius: 1px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Corner ornaments — pure CSS */
+    .cert-corner {
+      position: absolute;
+      width: 64px; height: 64px;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .cert-corner::before,
+    .cert-corner::after {
+      content: '';
+      position: absolute;
+      background: #8b6914;
+    }
+    .cert-corner.tl { top: 5px; left: 5px; }
+    .cert-corner.tr { top: 5px; right: 5px; transform: scaleX(-1); }
+    .cert-corner.bl { bottom: 5px; left: 5px; transform: scaleY(-1); }
+    .cert-corner.br { bottom: 5px; right: 5px; transform: scale(-1,-1); }
+
+    /* Fleur ornament via unicode in a pseudo */
+    .cert-corner-fleur {
+      position: absolute;
+      z-index: 3;
+      color: #c8a84b;
+      font-size: 1.6rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .cert-corner-fleur.tl { top: 10px;  left: 12px; }
+    .cert-corner-fleur.tr { top: 10px;  right: 12px; }
+    .cert-corner-fleur.bl { bottom: 10px; left: 12px; }
+    .cert-corner-fleur.br { bottom: 10px; right: 12px; }
+
+    /* Background watermark */
+    .cert-watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .cert-watermark-text {
+      font-family: 'Righteous', cursive;
+      font-size: 10rem;
+      color: rgba(200,168,75,.06);
+      transform: rotate(-30deg);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    /* Content */
+    .cert-content {
+      position: relative;
+      z-index: 4;
+      padding: 54px 68px 46px;
+    }
+
+    .cert-logo-area {
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .cert-logo-text {
+      font-family: 'Righteous', cursive;
+      font-size: 2.6rem;
+      background: linear-gradient(135deg, #8b6914 0%, #c8a84b 45%, #8b6914 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: .06em;
+    }
+    .cert-logo-tagline {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: .82rem;
+      color: #8b6914;
+      letter-spacing: .14em;
+      margin-top: 2px;
+    }
+
+    /* Ornate horizontal rule */
+    .cert-rule {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 30px;
+      color: #c8a84b;
+    }
+    .cert-rule::before,
+    .cert-rule::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #c8a84b, transparent);
+    }
+    .cert-rule-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    .cert-presents {
+      text-align: center;
+      font-size: .78rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #6b4c00;
+      margin-bottom: 12px;
+    }
+
+    /* Editable name field */
+    .cert-name {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      text-align: center;
+      color: #2a1a00;
+      border: none;
+      border-bottom: 2px solid #c8a84b;
+      background: transparent;
+      width: 100%;
+      outline: none;
+      padding: 4px 8px 8px;
+      margin-bottom: 4px;
+      cursor: text;
+      caret-color: #8b6914;
+    }
+    .cert-name::placeholder { color: #c8a84b88; font-style: italic; }
+    .cert-name-hint {
+      text-align: center;
+      font-size: .65rem;
+      color: #b89040;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .cert-body-copy {
+      text-align: center;
+      font-size: .92rem;
+      line-height: 1.9;
+      color: #3a2800;
+      margin-bottom: 14px;
+    }
+    .cert-body-copy em { font-style: italic; color: #6b4c00; }
+
+    /* Timestamp highlight box */
+    .cert-timestamp-box {
+      border: 1px solid #c8a84b;
+      border-radius: 3px;
+      padding: 12px 20px;
+      margin: 0 20px 18px;
+      text-align: center;
+      background: rgba(200,168,75,.06);
+    }
+    .cert-timestamp-box .date-big {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: #8b6914;
+      margin-bottom: 4px;
+    }
+    .cert-timestamp-box .hour-label {
+      font-size: .78rem;
+      color: #6b4c00;
+      letter-spacing: .1em;
+    }
+
+    /* Reason / message field */
+    .cert-message-label {
+      text-align: center;
+      font-size: .7rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #8b6914;
+      margin-bottom: 8px;
+    }
+    .cert-message {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: .9rem;
+      line-height: 1.75;
+      color: #3a2800;
+      text-align: center;
+      border: 1px dashed #c8a84b;
+      border-radius: 3px;
+      padding: 12px 16px;
+      margin: 0 10px 22px;
+      background: transparent;
+      width: calc(100% - 20px);
+      resize: none;
+      outline: none;
+      cursor: text;
+      caret-color: #8b6914;
+      min-height: 72px;
+    }
+    .cert-message::placeholder { color: #c8a84b77; }
+
+    /* Seal & signatures */
+    .cert-seal-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .cert-sig {
+      text-align: center;
+      flex: 1;
+      min-width: 130px;
+    }
+    .cert-sig .sig-line {
+      width: 140px;
+      border-top: 1px solid #8b6914;
+      margin: 0 auto 4px;
+    }
+    .cert-sig p {
+      font-size: .65rem;
+      color: #8b6914;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .cert-sig .sig-name {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: .88rem;
+      color: #3a2800;
+      margin-bottom: 3px;
+      min-height: 22px;
+    }
+
+    /* Wax seal emblem */
+    .cert-seal-emblem {
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      border: 3px solid #c8a84b;
+      background: radial-gradient(circle at 35% 35%, #fff8e1, #f5e6b0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      box-shadow: 0 0 0 5px #fffdf5, 0 0 0 7px #c8a84b, 0 4px 12px rgba(139,105,20,.3);
+      flex-shrink: 0;
+    }
+    .cert-seal-emblem .seal-title {
+      font-family: 'Righteous', cursive;
+      font-size: .62rem;
+      color: #8b6914;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .cert-seal-emblem .seal-icon { font-size: 1.6rem; }
+
+    /* Conf number */
+    .cert-conf-num {
+      text-align: center;
+      font-size: .65rem;
+      color: #b89040;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e8d89a;
+    }
+
+    /* Print / action buttons */
+    .cert-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 24px 0 10px;
+      flex-wrap: wrap;
+    }
+    .cert-actions button, .cert-actions a {
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-family: 'Poppins', sans-serif;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .2s, transform .2s;
+      border: none;
+    }
+    .cert-actions button:hover, .cert-actions a:hover {
+      opacity: .88;
+      transform: translateY(-1px);
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #8b6914, #c8a84b);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(139,105,20,.4);
+    }
+    .btn-share-cert {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.25) !important;
+    }
+
+    @media print {
+      body { background: white !important; }
+      #neon-border, .lang-bar, .cert-page-header,
+      .cert-instructions, .cert-actions { display: none !important; }
+      .cert-watermark { display: flex !important; }
+      .certificate { box-shadow: none; width: 100%; max-width: none; margin: 0; }
+      .cert-content { padding: 40px 50px 36px; }
+      .cert-name, .cert-message { border-color: #c8a84b !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="neon-border"></div>
+
+<!-- Dark parchment background — no sky needed on cert page -->
+
+<div class="lang-bar"><div id="google_translate_element"></div></div>
+
+<div style="position:relative; z-index:10; padding: 10px 0 0;">
+  <div class="cert-page-header">
+    <a href="index.html">TimeStampU</a>
+  </div>
+  <p class="cert-instructions">
+    <strong>Your Certificate of Time is ready!</strong><br>
+    Click any underlined field to personalise it, then print or download.
+  </p>
+
+  <!-- ══════════════════════════════════════════════════
+       THE CERTIFICATE
+  ══════════════════════════════════════════════════ -->
+  <div class="certificate" id="certificate">
+
+    <!-- Decorative borders -->
+    <div class="cert-border-outer"></div>
+    <div class="cert-border-inner"></div>
+
+    <!-- Corner fleurs -->
+    <span class="cert-corner-fleur tl">✦</span>
+    <span class="cert-corner-fleur tr">✦</span>
+    <span class="cert-corner-fleur bl">✦</span>
+    <span class="cert-corner-fleur br">✦</span>
+
+    <!-- Watermark -->
+    <div class="cert-watermark">
+      <span class="cert-watermark-text">TimeStampU</span>
+    </div>
+
+    <!-- Content -->
+    <div class="cert-content">
+
+      <!-- Logo -->
+      <div class="cert-logo-area">
+        <div class="cert-logo-text">TimeStampU</div>
+        <div class="cert-logo-tagline">place yourself in time, forever.</div>
+      </div>
+
+      <!-- Rule -->
+      <div class="cert-rule"><span class="cert-rule-icon">⚜</span></div>
+
+      <!-- This certifies that… -->
+      <p class="cert-presents">Certificate of Historical Timestamp</p>
+
+      <p class="cert-body-copy">
+        This certifies that the moment in time described herein<br>
+        has been permanently claimed on the TimeStampU Historical Timeline<br>
+        in the name of
+      </p>
+
+      <!-- Editable recipient name -->
+      <input
+        class="cert-name"
+        id="certName"
+        type="text"
+        placeholder="Enter recipient's full name here"
+        spellcheck="false"
+        autocomplete="off"
+      >
+      <p class="cert-name-hint">Click above to personalise the name &nbsp;·&nbsp; printable &amp; shareable</p>
+
+      <!-- Timestamp box -->
+      <div class="cert-timestamp-box">
+        <div class="date-big" id="certDateBig">— Select Your Moment —</div>
+        <div class="hour-label" id="certHourLabel"></div>
+      </div>
+
+      <p class="cert-body-copy" style="font-size:.84rem; margin-bottom:10px;">
+        <em>In testimony whereof</em>, the holder of this certificate has
+        permanently placed themselves in the river of human history,<br>
+        to be remembered by all who visit this date on TimeStampU.
+      </p>
+
+      <!-- Message / reason field -->
+      <p class="cert-message-label">Personal Statement</p>
+      <textarea
+        class="cert-message"
+        id="certMessage"
+        placeholder="Your personal reason for choosing this moment in time…"
+        spellcheck="false"
+        rows="4"
+      ></textarea>
+
+      <!-- Rule -->
+      <div class="cert-rule"><span class="cert-rule-icon">✾</span></div>
+
+      <!-- Seal row -->
+      <div class="cert-seal-row">
+
+        <div class="cert-sig">
+          <div class="sig-name" id="sigFounder">Timothy D.</div>
+          <div class="sig-line"></div>
+          <p>Founder, TimeStampU</p>
+        </div>
+
+        <div class="cert-seal-emblem">
+          <span class="seal-icon">🕰️</span>
+          <span class="seal-title">OFFICIAL<br>TIMESTAMP<br>SEAL</span>
+        </div>
+
+        <div class="cert-sig">
+          <div class="sig-name" id="sigDate"></div>
+          <div class="sig-line"></div>
+          <p>Date of Issue</p>
+        </div>
+
+      </div>
+
+      <!-- Confirmation number -->
+      <p class="cert-conf-num" id="certConfNum">Confirmation: —</p>
+
+    </div>
+    <!-- /cert-content -->
+
+  </div>
+  <!-- /certificate -->
+
+  <!-- Action buttons (hidden on print) -->
+  <div class="cert-actions">
+    <button class="btn-print" onclick="window.print()">🖨️ Print Certificate</button>
+    <a href="index.html" class="btn-share-cert">← Back to Timeline</a>
+  </div>
+
+  <p style="text-align:center; font-size:.72rem; color:rgba(255,255,255,.35); padding-bottom:30px;">
+    A copy of this certificate has been sent to your registered email address.
+  </p>
+
+</div>
+
+<script src="js/i18n.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  /* Populate from session data */
+  const raw  = sessionStorage.getItem('tsu_cert');
+  const cert = raw ? JSON.parse(raw) : null;
+
+  if (cert) {
+    if (cert.name) {
+      document.getElementById('certName').value = cert.name;
+    }
+    if (cert.reason) {
+      document.getElementById('certMessage').value = cert.reason;
+    }
+    if (cert.yearLabel) {
+      document.getElementById('certDateBig').textContent = cert.yearLabel;
+    }
+    if (cert.hourStr) {
+      document.getElementById('certHourLabel').textContent = cert.hourStr;
+    }
+    if (cert.confNum) {
+      document.getElementById('certConfNum').textContent = 'Confirmation: ' + cert.confNum;
+    }
+    if (cert.purchaseDate) {
+      document.getElementById('sigDate').textContent = cert.purchaseDate;
+    }
+  } else {
+    /* Demo / direct-load fallback */
+    document.getElementById('certDateBig').textContent  = 'July 20, 1969';
+    document.getElementById('certHourLabel').textContent = '20:00 – 21:00  ·  Moon Landing Hour';
+    document.getElementById('certConfNum').textContent   = 'Confirmation: TSU-DEMO01';
+    document.getElementById('sigDate').textContent       =
+      new Date().toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+  }
+
+  /* Ensure issue date always shows if not set */
+  const sigDateEl = document.getElementById('sigDate');
+  if (!sigDateEl.textContent.trim()) {
+    sigDateEl.textContent = new Date().toLocaleDateString(undefined,
+      {year:'numeric', month:'long', day:'numeric'});
+  }
+});
+</script>
+</body>
+</html>
